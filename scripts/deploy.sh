@@ -52,6 +52,11 @@ cd helm
 throw_error_if_need "Falha ao mover para o diretório Helm"
 log_success "Diretório Helm acessado com sucesso"
 
+echo "Construindo arquivo values.yaml..."
+bash build-values.sh
+throw_error_if_need "Falha ao construir o arquivo values.yaml"
+log_success "Arquivo values.yaml construído com sucesso"
+
 echo "Instalando a aplicação..."
 release_name=$(echo "$appname-release-$appversion")
 
