@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  labels:
+    {{- include "goecommerce-microservice.labels" .| nindent 4 }}
+    app: {{ .Values.deployment.appname }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.appname }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.appname }}
+    spec:
+      hostname: {{ .Values.deployment.hostname }}
+      containers:
+        - name: {{ .Values.deployment.containername }}
+          image: {{ .Values.deployment.containerimage }}
+          ports:
+            - containerPort: {{ .Values.deployment.containerport }}
+          env:
+            {{- range $env := .Values.envs }}
+            - name: {{ $env.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $env.configMapName }}
+                  key: {{ $env.configMapKey }}
+            {{- end }}
+            {{- range $secret := .Values.secrets }}
+            - name: {{ $secret.name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret.secretName }}
+                  key: {{ $secret.secretKey }}
+
+            {{- end }}
+          volumeMounts:
+            {{- range $volumeMount := .Values.volumeMounts }}
+            - name: {{ $volumeMount.name }}
+              mountPath: {{ $volumeMount.mountPath }}
+            {{- end }}
+      volumes:
+        {{- range $volumeMount := .Values.volumeMounts }}
+        - name: {{ $volumeMount.name }}
+          persistentVolumeClaim:
+            claimName: {{ $volumeMount.claimName }}
+        {{- end }}

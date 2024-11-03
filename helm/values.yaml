@@ -1,0 +1,44 @@
+# Configurações para o ConfigMap
+configMap:
+  name: my-api-config
+  data:
+    ENVIRONMENT: "hml"
+
+# Configurações para o Deployment
+deployment:
+  name: my-api-deployment
+  appname: my-api
+  replicas: 3
+  hostname: my-api-host
+  containername: my-api-container:
+  containerimage: my-api-image:latest
+  containerport: 8080
+
+# Variáveis de ambiente para o Deployment (ConfigMap e Secret)
+envs:
+  - name: ENVIRONMENT
+    configMapName: my-api-config
+    configMapKey: ENVIRONMENT
+
+secrets:
+  - name: DATABASE_CONNECTION_STRING
+    secretName: my-api-secrets
+    secretKey: DATABASE_CONNECTION_STRING
+
+# Configurações para montagens de volumes
+volumeMounts:
+  - name: logs-volume
+    mountPath: /app/logs
+    claimName: my-logs-pvc
+
+# Configurações para o Service
+service:
+  name: my-api-service
+  appname: my-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+    - name: https
+      protocol: TCP
+      port: 443
